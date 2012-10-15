@@ -141,36 +141,55 @@ void output_difference(string_vector& x, string_vector& y) {
   Read sentences from two files and output the result.
 */
 void lcsdiff(char* f1, char* f2) {
-  string_vector sv1, sv2;
-  read_sentence(f1, sv1);
-  read_sentence(f2, sv2);
-  output_difference(sv1, sv2);
+  std::vector<string_vector> sv1, sv2;
+  if (f2) {
+    read_sentence(f1, sv1);
+    read_sentence(f2, sv2);
+    if (sv1.size() == sv2.size()) {
+      for (int i = 0; i < sv1.size(); i++) {
+        output_difference(sv1[i], sv2[i]);
+      }
+    } else {
+      std::cerr << "two files with different number of sentences" << std::endl;
+    }
+  } else {
+    read_sentence(f1, sv1);
+    if (sv1.size() % 2 == 0) {
+      for (int i = 0; i < sv1.size(); i += 2) {
+        output_difference(sv1[i], sv1[i + 1]);
+      }
+    } else {
+      std::cerr << "odd number of sentences" << std::endl;
+    }
+  }
   return;
 }
 
 /*
   Read a sentence from the file
 */
-void read_sentence(char* f, string_vector& sv)
+void read_sentence(char* f, std::vector<string_vector>& sv)
 {
   std::ifstream myfile (f);
   std::string word;
   std::string line;
   if (myfile.is_open()) {
-    std::getline(myfile, line);
-    if (__VERBOSE__ < __INFO__)
-      std::cout << "INFO ORIGINAL: " << line << std::endl;
-    std::istringstream iss (line);
-    int original_i = 0, valid_i = 0;
-    while (iss.good()) {
-      iss >> word;
-      if (word.length() == 0) {
-        if (__VERBOSE__ < __ERROR__)
-          std::cout << "ERROR EMPTY WORD" << std::endl;
-        continue;
+    while (std::getline(myfile, line)) {
+      if (__VERBOSE__ < __INFO__)
+        std::cout << "INFO ORIGINAL: " << line << std::endl;
+      std::istringstream iss (line);
+      string_vector s;
+      while (iss.good()) {
+        iss >> word;
+        if (word.length() == 0) {
+          if (__VERBOSE__ < __ERROR__)
+            std::cout << "ERROR EMPTY WORD" << std::endl;
+          continue;
+        }
+        std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+        s.push_back(word);
       }
-      std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-      sv.push_back(word);
+      sv.push_back(s);
     }
     myfile.close();
   } else {

@@ -10,5 +10,5 @@
 
 typedef std::vector<std::string> string_vector;
 std::ostream& operator << (std::ostream& stream,  string_vector &a);
-void lcsdiff(char* f1, char* f2);
-void read_sentence(char* filename, string_vector& sv);
+void lcsdiff(char* f1, char* f2=NULL);
+void read_sentence(char* filename, std::vector<string_vector>& sv);
